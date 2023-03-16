@@ -147,6 +147,6 @@
             *iItr1*
         );progn ; True
         ;; False
-        (princ "\nError: Load the GB:PRINT function needs to be loaded into this session before this example can work!\n")
+        (princ "\nError: The \"Debug_Printer.lsp\" file needs to be loaded into this session before this example can work!\n")
     );cond
 );FindValue
