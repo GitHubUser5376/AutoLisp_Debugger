@@ -2,17 +2,24 @@
 ;;; Created By:   Garrett Beck
 ;;; Date Created: 2023/01/17
 ;;; Source:       https://github.com/GitHubUser5376/AutoLisp_Find_Value
-;;; Example:      (FindValue nil "ByLayer")
+;;; Example:      (C:FindValue-Debugger nil "ByLayer")
 ;;; --------------------------------------------------------------------------------- ;;;
+(defun C:FindValue-Debugger (sTag vValue / ; Input variables
+    ObjPath lResult ;----------------------; Local variable
+    *lVlaObjects* *vla-getlist* *lResults* ; sub function use variables
+    *error* ;------------------------------; sub function use variables
+    FindValue-vla-getlist ;----------------; Local sub function
+    FindValue-vl-property-available ;------; Local sub function
+    RecursiveFind ;------------------------; Local sub function
+    ); Local variable declarations
 
-(defun FindValue-Debugger (sTag vValue / *lVlaObjects* *vla-getlist* ObjPath *lResults* lResult *error*)
     ;;; ------------------------------------------------------------------------- ;;;
     ;;; Local functions ----------------------------------------- Local functions ;;;
 
     ;; Source: https://forums.autodesk.com/t5/visual-lisp-autolisp-and-general/vlax-dump-object/m-p/1079460/highlight/true#M155423
     
     ;; Returns all properties
-    (defun FindValue:vla-getlist (/ fcnLambda01 fcnLambda02 fcnLambda03 lBadProperties)
+    (defun FindValue-vla-getlist (/ fcnLambda01 fcnLambda02 fcnLambda03 lBadProperties)
         (setq fcnLambda01 (function (lambda (x) (wcmatch (strcase x) "VLA-GET-*"))))
         (setq fcnLambda02 (function (lambda (x) (substr x 9))))
         (setq fcnLambda03 (function (lambda (x) (member x lBadProperties))))
@@ -25,13 +32,13 @@
         (setq *vla-getlist* (vl-remove-if-not fcnLambda01 (atoms-family 1)))
         (setq *vla-getlist* (mapcar fcnLambda02 *vla-getlist*))
         (setq *vla-getlist* (vl-remove-if fcnLambda03 *vla-getlist*))
-    );FindValue:vla-getlist
+    );FindValue-vla-getlist
 
     ;; Returns available properties
-    (defun FindValue:vl-property-available (en / fcnLambda01 fcnLambda02 lBadProperties lReturn)
+    (defun FindValue-vl-property-available (en / fcnLambda01 fcnLambda02 lBadProperties lReturn)
         (setq fcnLambda01 (function (lambda (x) (vlax-property-available-p en x))))
         (setq lReturn (vl-remove-if-not fcnLambda01 *vla-getlist*))
-    );FindValue:vl-property-available
+    );FindValue-vl-property-available
 
     ;;; Local functions ----------------------------------------- Local functions ;;;
     ;;; ------------------------------------------------------------------------- ;;;
@@ -53,7 +60,7 @@
         (setq *lVlaObjects* (cons vlaObject *lVlaObjects*))
 
         ;; Collecting properties
-        (setq lProperties (FindValue:vl-property-available vlaObject))
+        (setq lProperties (FindValue-vl-property-available vlaObject))
         (GB:Print "lProperties" lProperties T nil)
 
         ;; Each property within the object
@@ -116,24 +123,30 @@
     ;;; Recursive function ----------------------------------- Recursive function ;;;
     ;;; ------------------------------------------------------------------------- ;;;
     ;;; Function call --------------------------------------------- Function call ;;;
-
+    
     ;; Starting recursive search - Returns list variable
-    (setq *iItr1* 0)
-    (setq *iLevel* 0)
-    (FindValue:vla-getlist)
-    (if (= sTag "")(setq sTag nil))
-    (GB:Print-Start nil T T)
-    (setq *lResults* (RecursiveFind sTag vValue (vlax-get-acad-object) nil))
-    (GB:Print-End)
-    (princ "\n*lResults* : ")(prin1 *lResults*)(terpri)
+    (if (member "GB:PRINT" (atoms-family 1))
+        (progn ;; True
+            (setq *iItr1* 0)
+            (setq *iLevel* 0)
+            (FindValue-vla-getlist)
+            (if (= sTag "")(setq sTag nil))
+            (GB:Print-Start nil T T)
+            (setq *lResults* (RecursiveFind sTag vValue (vlax-get-acad-object) nil))
+            (GB:Print-End)
+            (princ "\n*lResults* : ")(prin1 *lResults*)(terpri)
 
-    ;; Printing results
-    (foreach lResult *lResults* 
-        (princ "\n---------------------------------------\n")
-        (foreach ObjPath (nth 0 lResult)(princ "\nObject : ")(prin1 ObjPath)(terpri))
-        (princ "\nTag   : ")(prin1 (nth 1 lResult))(terpri)
-        (princ "\nValue : ")(prin1 (nth 2 lResult))(terpri)
-    );foreach
-    (princ)
-    *iItr1*
+            ;; Printing results
+            (foreach lResult *lResults* 
+                (princ "\n---------------------------------------\n")
+                (foreach ObjPath (nth 0 lResult)(princ "\nObject : ")(prin1 ObjPath)(terpri))
+                (princ "\nTag   : ")(prin1 (nth 1 lResult))(terpri)
+                (princ "\nValue : ")(prin1 (nth 2 lResult))(terpri)
+            );foreach
+            (princ)
+            *iItr1*
+        );progn ; True
+        ;; False
+        (princ "\nError: Load the GB:PRINT function needs to be loaded into this session before this example can work!\n")
+    );cond
 );FindValue

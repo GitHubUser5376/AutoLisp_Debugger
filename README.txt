@@ -8,7 +8,7 @@ for the user.
 (GB:Print-End)
 
 (GB:Print-Start [Print to the screen (boolean)] [Print to the File (boolean)] [Clear previous file's log (boolean)])
-By default, a file is created under "C:\Users\User\Appdata\local\Temp" with the name of "AutoLisp-Print.txt" when the "Print to the File" is set to true.
+By default, a file is created under "C:\Users\User\Appdata\local\Temp" with the name of "AutoLisp-Print.txt" when the "Print to the File" variable is set to true.
 
 (GB:Print [Message (string)] [Value (atom/variant)] [Force show value if nil (Boolean)] [Show the Value's variable type instead of the actual value (Boolean)])
  
